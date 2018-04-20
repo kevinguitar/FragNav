@@ -631,7 +631,7 @@ public class FragNavController {
     private void detachCurrentFragment(@NonNull FragmentTransaction ft) {
         Fragment oldFrag = getCurrentFrag();
         if (oldFrag != null) {
-            ft.detach(oldFrag);
+            ft.remove(oldFrag);
         }
     }
 
