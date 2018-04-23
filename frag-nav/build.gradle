@@ -202,4 +202,19 @@ task createPom {
         }
     }.writeTo("$buildDir/poms/pom-default.xml").writeTo("pom.xml")
 }
+
+uploadArchives {
+    repositories {
+        mavenDeployer {
+            repository(url: rootProject.properties["maven.repo"]) {
+                authentication(
+                        userName: rootProject.properties["maven.user"],
+                        password: rootProject.properties["maven.password"]
+                )
+            }
+        }
+    }
+}
+
+
 build.dependsOn createPom
