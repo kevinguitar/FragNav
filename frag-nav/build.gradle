@@ -1,5 +1,4 @@
 plugins {
-    id "com.jfrog.bintray" version "1.8.4"
     id 'com.github.kt3k.coveralls' version '2.12.0'
 }
 
@@ -10,32 +9,8 @@ apply plugin: 'com.github.kt3k.coveralls'
 apply plugin: 'jacoco'
 apply plugin: "de.mannodermaus.android-junit5"
 
-ext {
-    libraryVersionCode = 30
-    libraryVersionName = '3.3.0'
-
-    //Bintray and Maven
-    bintrayRepo = 'maven'
-    bintrayName = 'frag-nav'
-
-    publishedGroupId = 'com.ncapdevi'
-    libraryName = 'FragNav'
-    artifact = 'frag-nav'
-
-    libraryDescription = 'A library to help manage multiple fragment stacks'
-
-    siteUrl = 'https://github.com/ncapdevi/FragNav'
-    gitUrl = 'https://github.com/ncapdevi/FragNav.git'
-
-    developerId = 'ncapdevi'
-    developerName = 'Nic Capdevila'
-    developerEmail = 'ncapdevi@gmail.com'
-
-    licenseName = 'The Apache Software License, Version 2.0'
-    licenseUrl = 'http://www.apache.org/licenses/LICENSE-2.0.txt'
-    allLicenses = ["Apache-2.0"]
-}
-
+group = 'com.ncapdevi'
+version = '3.3.0-apply-max-lifecycle'
 
 android {
     compileSdkVersion rootProject.ext.compileSdkVersion
@@ -47,8 +22,8 @@ android {
     defaultConfig {
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.compileSdkVersion
-        versionCode libraryVersionCode
-        versionName libraryVersionName
+        versionCode 30
+        versionName version
     }
     buildTypes {
         release {
@@ -71,7 +46,6 @@ android {
                 }
             }
             jacocoOptions {
-                // here goes all jacoco config, for example
                 html.enabled = true
                 xml.enabled = false
                 csv.enabled = false
@@ -81,19 +55,26 @@ android {
             }
         }
     }
+
+    publishing {
+        singleVariant('release') {
+            withSourcesJar()
+            withJavadocJar()
+        }
+    }
 }
 
 dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
 
-    implementation "androidx.fragment:fragment-ktx:1.4.1"
+    implementation "androidx.fragment:fragment:1.4.1"
     implementation "androidx.annotation:annotation:1.3.0"
 
     testImplementation "junit:junit:$rootProject.ext.junitVersion"
     testImplementation "com.nhaarman.mockitokotlin2:mockito-kotlin:2.0.0"
     testImplementation "org.robolectric:robolectric:4.2"
 
-    testImplementation 'org.amshove.kluent:kluent-android:1.42'
+    testImplementation 'org.amshove.kluent:kluent-android:1.65'
 
     // Spek
     testImplementation "org.spekframework.spek2:spek-dsl-jvm:$spek_version"
@@ -106,34 +87,6 @@ dependencies {
         exclude group: 'org.junit.platform'
         exclude group: 'org.jetbrains.kotlin'
     }
-}
-
-group = publishedGroupId
-version = libraryVersionName
-
-Object getBuildProperty(String varName, String defaultValue = null) {
-    if (System.getenv().containsKey(varName)) {
-        return System.getenv()[varName]
-    }
-
-    // read local.properties only once and cache properties
-    if (rootProject.ext.localProperties == null) {
-        File propsFile = file(rootProject.file('local.properties'))
-        rootProject.ext.localProperties = new Properties()
-        if (propsFile.exists() && propsFile.canRead()) {
-            rootProject.ext.localProperties.load(new FileInputStream(propsFile))
-        }
-    }
-
-    if (rootProject.ext.localProperties.containsKey(varName)) {
-        return rootProject.ext.localProperties[varName]
-    }
-
-    if (rootProject.hasProperty(varName)) {
-        return rootProject.property(varName)
-    }
-
-    return defaultValue
 }
 
 afterEvaluate {
@@ -149,6 +102,25 @@ afterEvaluate {
                 artifact sourcesJar
                 from components.release
                 version = project.version
+
+                pom {
+                    name = 'FragNav'
+                    description = 'A library to help manage multiple fragment stacks'
+                    url = 'https://github.com/ncapdevi/FragNav'
+                    licenses {
+                        license {
+                            name = 'The Apache Software License, Version 2.0'
+                            url = 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+                        }
+                    }
+                    developers {
+                        developer {
+                            id = 'ncapdevi'
+                            name = 'Nic Capdevila'
+                            email = 'ncapdevi@gmail.com'
+                        }
+                    }
+                }
             }
         }
     }
@@ -156,14 +128,11 @@ afterEvaluate {
     publishing {
         repositories {
             maven {
-                def contextUrl = getBuildProperty('ARTIFACTORY_CONTEXT_URL')
-                def repoKey = getBuildProperty('ARTIFACTORY_REPO_KEY')
-                // change to point to your repo, e.g. http://my.org/repo
-                url = "$contextUrl/$repoKey"
-                credentials {
-                    username getBuildProperty('ARTIFACTORY_PUBLISH_USERNAME')
-                    password getBuildProperty('ARTIFACTORY_PUBLISH_PASSWORD')
-                }
+                url = rootProject.properties['publishRepoUrl'].toString()
+                name = "publishRepo"
+
+                // https://docs.gradle.org/current/samples/sample_publishing_credentials.html
+                credentials(PasswordCredentials)
             }
         }
     }

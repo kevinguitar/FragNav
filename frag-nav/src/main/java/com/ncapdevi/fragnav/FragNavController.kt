@@ -217,14 +217,15 @@ class FragNavController constructor(private val fragmentManger: FragmentManager,
                 fragmentStacksTags[currentStackIndex].push(fragmentTag)
                 ft.addSafe(containerId, fragment, fragmentTag)
                 if (i != index) {
-                    ft.setMaxLifecycle(fragment, Lifecycle.State.STARTED)
                     when {
                         shouldDetachAttachOnSwitch() -> ft.detach(fragment)
                         shouldRemoveAttachOnSwitch() -> ft.remove(fragment)
-                        else -> ft.hide(fragment)
+                        else -> {
+                            ft.setMaxLifecycle(fragment, Lifecycle.State.STARTED)
+                            ft.hide(fragment)
+                        }
                     }
                 } else {
-                    ft.setMaxLifecycle(fragment, Lifecycle.State.RESUMED)
                     mCurrentFrag = fragment
                 }
             }
@@ -276,14 +277,18 @@ class FragNavController constructor(private val fragmentManger: FragmentManager,
             if (index == NO_TAB) {
                 commitTransaction(ft, transactionOptions)
             } else {
-                //Attempt to reattach previous fragment
-                fragment = addPreviousFragment(ft, shouldDetachAttachOnSwitch() || shouldRemoveAttachOnSwitch())
+                val shouldAttach = shouldDetachAttachOnSwitch() || shouldRemoveAttachOnSwitch()
 
-                fragmentCache.values.forEach { ref ->
-                    val frag = ref.get() ?: return@forEach
-                    ft.setMaxLifecycle(frag, Lifecycle.State.STARTED)
+                //Attempt to reattach previous fragment
+                fragment = addPreviousFragment(ft, shouldAttach)
+
+                if (!shouldAttach) {
+                    fragmentCache.values.forEach { ref ->
+                        val frag = ref.get() ?: return@forEach
+                        ft.setMaxLifecycle(frag, Lifecycle.State.STARTED)
+                    }
+                    ft.setMaxLifecycle(fragment, Lifecycle.State.RESUMED)
                 }
-                ft.setMaxLifecycle(fragment, Lifecycle.State.RESUMED)
 
                 commitTransaction(ft, transactionOptions)
             }
@@ -675,21 +680,16 @@ class FragNavController constructor(private val fragmentManger: FragmentManager,
                     }
                 }
 
-                setTransitionStyle(options.transitionStyle)
-
                 setTransition(options.transition)
 
                 options.sharedElements.forEach { sharedElement ->
-                    sharedElement.first?.let {
-                        sharedElement.second?.let { it1 ->
-                            addSharedElement(
-                                    it,
-                                    it1
-                            )
-                        }
-                    }
+                    addSharedElement(
+                        sharedElement.first,
+                        sharedElement.second
+                    )
                 }
 
+                @Suppress("DEPRECATION")
                 when {
                     options.breadCrumbTitle != null -> setBreadCrumbTitle(options.breadCrumbTitle)
                     options.breadCrumbShortTitle != null -> setBreadCrumbShortTitle(options.breadCrumbShortTitle)

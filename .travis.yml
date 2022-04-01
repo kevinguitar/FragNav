@@ -29,7 +29,7 @@ android:
     - 'google-gdk-license-.+'
 
 jdk:
-  - oraclejdk8
+  - oraclejdk11
 
 notifications:
   email: false
