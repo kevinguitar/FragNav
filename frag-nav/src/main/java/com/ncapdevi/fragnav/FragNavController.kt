@@ -11,6 +11,7 @@ import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.FragmentTransaction
+import androidx.lifecycle.Lifecycle
 import com.ncapdevi.fragnav.tabhistory.*
 import org.json.JSONArray
 import java.lang.ref.WeakReference
@@ -216,12 +217,14 @@ class FragNavController constructor(private val fragmentManger: FragmentManager,
                 fragmentStacksTags[currentStackIndex].push(fragmentTag)
                 ft.addSafe(containerId, fragment, fragmentTag)
                 if (i != index) {
+                    ft.setMaxLifecycle(fragment, Lifecycle.State.STARTED)
                     when {
                         shouldDetachAttachOnSwitch() -> ft.detach(fragment)
                         shouldRemoveAttachOnSwitch() -> ft.remove(fragment)
                         else -> ft.hide(fragment)
                     }
                 } else {
+                    ft.setMaxLifecycle(fragment, Lifecycle.State.RESUMED)
                     mCurrentFrag = fragment
                 }
             }
@@ -275,6 +278,13 @@ class FragNavController constructor(private val fragmentManger: FragmentManager,
             } else {
                 //Attempt to reattach previous fragment
                 fragment = addPreviousFragment(ft, shouldDetachAttachOnSwitch() || shouldRemoveAttachOnSwitch())
+
+                fragmentCache.values.forEach { ref ->
+                    val frag = ref.get() ?: return@forEach
+                    ft.setMaxLifecycle(frag, Lifecycle.State.STARTED)
+                }
+                ft.setMaxLifecycle(fragment, Lifecycle.State.RESUMED)
+
                 commitTransaction(ft, transactionOptions)
             }
             mCurrentFrag = fragment
@@ -764,10 +774,7 @@ class FragNavController constructor(private val fragmentManger: FragmentManager,
      *
      * @param outState The Bundle to save state information to
      */
-    fun onSaveInstanceState(outState: Bundle?) {
-        if (outState == null) {
-            return
-        }
+    fun onSaveInstanceState(outState: Bundle) {
         // Write tag count
         outState.putInt(EXTRA_TAG_COUNT, tagCount)
 
