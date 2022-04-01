@@ -12,15 +12,6 @@ android:
   components:
     - tools
     - platform-tools
-    - tool
-    - extra-google-m2repository
-    - extra-android-m2repository
-    - extra-android-support
-
-  licenses:
-    - 'android-sdk-preview-license-.+'
-    - 'android-sdk-license-.+'
-    - 'google-gdk-license-.+'
 
 jdk:
   - oraclejdk11
