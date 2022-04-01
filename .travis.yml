@@ -21,3 +21,6 @@ notifications:
 
 script:
   - ./gradlew jacocoTestReportDebug coveralls
+
+install:
+- yes | sdkmanager --licenses
