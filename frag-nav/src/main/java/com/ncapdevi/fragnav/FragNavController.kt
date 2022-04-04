@@ -66,6 +66,13 @@ class FragNavController constructor(private val fragmentManger: FragmentManager,
     var fragmentHideStrategy = FragNavController.DETACH
     var createEager = false
 
+    /**
+     *  There's a known issue that if you use the hiding strategy on the fragment switch, the
+     *  fragment's lifecycle won't be changed. Set this flag to true will set the maximum
+     *  lifecycle state during the transaction, so the lifecycle will be triggered properly.
+     */
+    var setMaxLifecycleOnSwitch = false
+
     @TabIndex
     @get:CheckResult
     @get:TabIndex
@@ -221,7 +228,9 @@ class FragNavController constructor(private val fragmentManger: FragmentManager,
                         shouldDetachAttachOnSwitch() -> ft.detach(fragment)
                         shouldRemoveAttachOnSwitch() -> ft.remove(fragment)
                         else -> {
-                            ft.setMaxLifecycle(fragment, Lifecycle.State.STARTED)
+                            if (setMaxLifecycleOnSwitch) {
+                                ft.setMaxLifecycle(fragment, Lifecycle.State.STARTED)
+                            }
                             ft.hide(fragment)
                         }
                     }
@@ -282,7 +291,7 @@ class FragNavController constructor(private val fragmentManger: FragmentManager,
                 //Attempt to reattach previous fragment
                 fragment = addPreviousFragment(ft, shouldAttach)
 
-                if (!shouldAttach) {
+                if (!shouldAttach && setMaxLifecycleOnSwitch) {
                     fragmentCache.values.forEach { ref ->
                         val frag = ref.get() ?: return@forEach
                         ft.setMaxLifecycle(frag, Lifecycle.State.STARTED)
