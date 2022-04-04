@@ -691,11 +691,8 @@ class FragNavController constructor(private val fragmentManger: FragmentManager,
 
                 setTransition(options.transition)
 
-                options.sharedElements.forEach { sharedElement ->
-                    addSharedElement(
-                        sharedElement.first,
-                        sharedElement.second
-                    )
+                options.sharedElements.forEach { (element, elementName) ->
+                    addSharedElement(element, elementName)
                 }
 
                 @Suppress("DEPRECATION")

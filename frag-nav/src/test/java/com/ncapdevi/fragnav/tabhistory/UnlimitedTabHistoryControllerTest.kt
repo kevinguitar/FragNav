@@ -5,8 +5,7 @@ import com.ncapdevi.fragnav.FragNavPopController
 import com.ncapdevi.fragnav.FragNavSwitchController
 import com.ncapdevi.fragnav.FragNavTransactionOptions
 import com.nhaarman.mockitokotlin2.*
-import org.junit.Assert.assertEquals
-import org.junit.Assert.assertFalse
+import org.junit.Assert.*
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -48,7 +47,7 @@ class UnlimitedTabHistoryControllerTest {
         val result = unlimitedTabHistoryController.popFragments(1, mockTransactionOptions)
 
         // Then
-        assert(result)
+        assertTrue(result)
         verify(mockFragNavSwitchController, never()).switchTab(any(), anyOrNull())
     }
 
@@ -75,7 +74,7 @@ class UnlimitedTabHistoryControllerTest {
         val result = unlimitedTabHistoryController.popFragments(1, mockTransactionOptions)
 
         // Then
-        assert(result)
+        assertTrue(result)
         verify(mockFragNavSwitchController, times(1)).switchTab(eq(1), eq(mockTransactionOptions))
     }
 
@@ -90,7 +89,7 @@ class UnlimitedTabHistoryControllerTest {
         val result = unlimitedTabHistoryController.popFragments(2, mockTransactionOptions)
 
         // Then
-        assert(result)
+        assertTrue(result)
         verify(mockFragNavSwitchController, times(1)).switchTab(eq(1), eq(mockTransactionOptions))
     }
 
@@ -119,7 +118,7 @@ class UnlimitedTabHistoryControllerTest {
         val result = unlimitedTabHistoryController.popFragments(15, mockTransactionOptions)
 
         // Then
-        assert(result)
+        assertTrue(result)
         argumentCaptor<Int>().apply {
             verify(mockFragNavSwitchController, times(9)).switchTab(capture(), eq(mockTransactionOptions))
 
@@ -149,7 +148,7 @@ class UnlimitedTabHistoryControllerTest {
 
         // When
         for (i in 0..8) {
-            assert(unlimitedTabHistoryController.popFragments(1, mockTransactionOptions))
+            assertTrue(unlimitedTabHistoryController.popFragments(1, mockTransactionOptions))
         }
         assertFalse(unlimitedTabHistoryController.popFragments(1, mockTransactionOptions))
 
@@ -186,7 +185,7 @@ class UnlimitedTabHistoryControllerTest {
         mockNavSwitchController(newUniqueTabHistoryController)
         newUniqueTabHistoryController.restoreFromBundle(mockBundle)
         for (i in 0..3) {
-            assert(newUniqueTabHistoryController.popFragments(1, mockTransactionOptions))
+            assertTrue(newUniqueTabHistoryController.popFragments(1, mockTransactionOptions))
         }
 
         // Then
