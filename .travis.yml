@@ -23,4 +23,5 @@ script:
   - ./gradlew jacocoTestReportDebug coveralls
 
 install:
-- yes | sdkmanager --licenses
+- echo yes | sdkmanager "tools"
+- echo yes | sdkmanager "platforms;android-31"
