@@ -212,6 +212,7 @@ class FakeFragmentTransaction(private val parent: FakeFragmentManager) {
                     is Remove -> parent.remove(it.fragment)
                     is Attach -> parent.attach(it.fragment)
                     is Detach -> parent.detach(it.fragment)
+                    else -> Unit
                 }
             }
             parent.operation(Commit)

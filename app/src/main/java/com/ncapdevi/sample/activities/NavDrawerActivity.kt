@@ -96,7 +96,7 @@ class NavDrawerActivity : AppCompatActivity(), NavigationView.OnNavigationItemSe
         return true
     }
 
-    override fun pushFragment(fragment: Fragment, sharedList: List<Pair<View, String>>?) {
+    override fun pushFragment(fragment: Fragment, sharedElementList: List<Pair<View, String>>?) {
         fragNavController.pushFragment(fragment)
     }
 }
